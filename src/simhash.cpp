@@ -80,7 +80,6 @@ Simhash::matches_t Simhash::find_all(
             Simhash::hash_t prefix = (*start) & mask;
             std::vector<Simhash::hash_t>::iterator end = start;
             for (; end != copy.end() && (*end & mask) == prefix; ++end) { }
-            
             // For all the hashes that are between start and end, consider them all
             for (auto a = start; a != end; ++a)
             {
@@ -95,6 +94,67 @@ Simhash::matches_t Simhash::find_all(
                             std::make_pair(
                                 std::min(a_raw, b_raw),
                                 std::max(a_raw, b_raw)));
+                    }
+                }
+            }
+
+            // Advance start to after the block
+            start = end;
+        }
+    }
+
+    return results;
+}
+
+Simhash::matches_t Simhash::find_all_keys(
+    std::unordered_set<Simhash::hash_t>& hashes,
+    std::unordered_set<Simhash::hash_t>& keys,
+    size_t number_of_blocks,
+    size_t different_bits)
+{
+    // Copy the values of hashes and keys:
+    std::vector<Simhash::hash_t> copy(hashes.begin(), hashes.end());
+    std::vector<Simhash::hash_t> copy_keys(keys.begin(), keys.end());
+
+    // Create new container:
+    Simhash::matches_t results;
+    auto permutations = Simhash::Permutation::create(number_of_blocks, different_bits);
+    // Iterate over each permutation:
+    for (Simhash::Permutation& permutation : permutations)
+    {
+        // Apply the permutation to the set of hashes and keys and sort
+        auto op = [permutation](Simhash::hash_t h) -> Simhash::hash_t {
+            return permutation.apply(h);
+        };
+        std::transform(hashes.begin(), hashes.end(), copy.begin(), op);
+        std::sort(copy.begin(), copy.end());
+        std::transform(keys.begin(), keys.end(), copy_keys.begin(), op);
+        std::sort(copy_keys.begin(), copy_keys.end());
+
+
+        // Walk through and find regions that have the same prefix subject to the mask
+        Simhash::hash_t mask = permutation.search_mask();
+        auto start = copy.begin();
+        while (start != copy.end())
+        {
+            // Find the end of the range that starts with this prefix
+            Simhash::hash_t prefix = (*start) & mask;
+            std::vector<Simhash::hash_t>::iterator end = start;
+            for (; end != copy.end() && (*end & mask) == prefix; ++end) { }
+            // For all the hashes that are between start and end, compare to each key
+            for (auto a = start; a != end; ++a)
+            {
+                for (auto key : copy_keys)
+                {
+                    if (Simhash::num_differing_bits(*a, key) <= different_bits)
+                    {
+                        Simhash::hash_t a_raw = permutation.reverse(*a);
+                        Simhash::hash_t key_raw = permutation.reverse(key);
+                        // Insert the result keyed on the smaller of the two
+                        results.insert(
+                            std::make_pair(
+                                std::min(a_raw, key_raw),
+                                std::max(a_raw, key_raw)));
                     }
                 }
             }
