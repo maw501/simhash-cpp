@@ -114,6 +114,14 @@ namespace Simhash {
         
         return results;
     }
+
+    Permutation Permutation::get_single_permutation(uint8_t index,
+                                                 size_t number_of_blocks,
+                                                 size_t different_bits)
+    {
+        std::vector<Permutation> perms = create(number_of_blocks, different_bits);
+        return perms[index];
+    }
     
     Permutation::Permutation(size_t different_bits, std::vector<hash_t>& masks)
         : forward_masks(masks)

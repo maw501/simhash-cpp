@@ -41,6 +41,12 @@ namespace Simhash {
     typedef std::vector<cluster_t> clusters_t;
 
     /**
+     * The type of the permutation masks.
+    */
+
+    typedef std::vector<Simhash::hash_t> masks_t;
+
+    /**
      * The number of bits in a hash_t.
      */
     static const size_t BITS = sizeof(hash_t) * 8;
@@ -69,8 +75,13 @@ namespace Simhash {
     matches_t find_all(std::unordered_set<hash_t>& hashes,
                        size_t number_of_blocks,
                        size_t different_bits);
-    matches_t find_all_keys(std::unordered_set<hash_t>& hashes,
-                       std::unordered_set<hash_t>& keys,
+
+    /**
+     * Find the set of all matches within the provided vector of hashes for a
+     * single permutation index.
+    */
+    matches_t find_all_single_permutation(std::unordered_set<hash_t>& hashes,
+                       u_int8_t permutation_index,
                        size_t number_of_blocks,
                        size_t different_bits);
 

@@ -17,6 +17,13 @@ namespace Simhash {
                                                size_t different_bits);
 
         /**
+         * Get a single permutation object at a given index.
+         */
+        static Permutation get_single_permutation(uint8_t index,
+                                            size_t number_of_blocks,
+                                            size_t different_bits);
+
+        /**
          * Generate combinations of length r from population.
          */
         static std::vector<std::vector<hash_t> > choose(
