@@ -107,7 +107,8 @@ Simhash::matches_t Simhash::find_all(
 }
 /**
  * As for find_all except we find the matches for a single permutation object only.
- * There are number_of_blocks choose different_bits of these. 
+ * There are number_of_blocks choose different_bits of these since how we order
+ * the blocks within a prefix (or suffix) doesn't matter.
 */
 Simhash::matches_t Simhash::find_all_single_permutation(
     std::unordered_set<Simhash::hash_t>& hashes,
